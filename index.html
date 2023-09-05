@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time View Counter</title>
+    <!-- Include the Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <h1>Real-time View Counter</h1>
+    <p>View Count: <span id="viewCount">Loading...</span></p>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+
+apiKey: "AIzaSyAm29VeiasduE8r3Hi5R6NCYCLrB21ux7E",
+
+authDomain: "mushfik-yeasir-portfolio.firebaseapp.com",
+
+databaseURL: "https://mushfik-yeasir-portfolio-default-rtdb.firebaseio.com",
+
+projectId: "mushfik-yeasir-portfolio",
+
+storageBucket: "mushfik-yeasir-portfolio.appspot.com",
+
+messagingSenderId: "711243552946",
+
+appId: "1:711243552946:web:7f9850708e56203fc9d1ab"
+
+};
+
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
+        // Initialize Firestore
+        var db = firebase.firestore();
+
+        // Reference to the Firestore document
+        var viewCountRef = db.collection("viewCounts").doc("pageViews");
+
+        // Listen for changes in the document
+        viewCountRef.onSnapshot(function(doc) {
+            if (doc.exists) {
+                var data = doc.data();
+                var viewCount = data.viewCount || 0; // Default to 0 if the field doesn't exist
+                document.getElementById("viewCount").textContent = viewCount;
+            } else {
+                console.log("No such document!");
+            }
+        });
+
+        // Function to increment the view count (e.g., called when a user views the content)
+        function incrementViewCount() {
+            viewCountRef.set({
+                viewCount: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true });
+        }
+
+        // Call this function whenever you want to increment the view count
+        // For example, call it when the page is loaded
+        incrementViewCount();
+    </script>
+</body>
+</html>
