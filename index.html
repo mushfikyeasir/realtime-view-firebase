@@ -1,68 +1,97 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time View Counter</title>
-    <!-- Include the Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.11.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-database.js"></script>
 </head>
 <body>
-    <h1>Real-time View Counter</h1>
-    <p>View Count: <span id="viewCount">Loading...</span></p>
+<div>
+    <p>Online visitor</p>
+    <p id="view_count_post"></p>
+</div>
 
-    <script>
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
+</body>
 
+<script type="application/javascript">
+const firebaseConfig = {
 apiKey: "AIzaSyAm29VeiasduE8r3Hi5R6NCYCLrB21ux7E",
-
 authDomain: "mushfik-yeasir-portfolio.firebaseapp.com",
-
 databaseURL: "https://mushfik-yeasir-portfolio-default-rtdb.firebaseio.com",
-
 projectId: "mushfik-yeasir-portfolio",
-
 storageBucket: "mushfik-yeasir-portfolio.appspot.com",
-
 messagingSenderId: "711243552946",
-
 appId: "1:711243552946:web:7f9850708e56203fc9d1ab"
-
 };
 
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
-        // Initialize Firestore
-        var db = firebase.firestore();
 
-        // Reference to the Firestore document
-        var viewCountRef = db.collection("viewCounts").doc("pageViews");
+    function get_viewers_ip(json){
+        viewers_ip=json.ip;
+        //count view
+        count_view(viewers_ip)
+    }
 
-        // Listen for changes in the document
-        viewCountRef.onSnapshot(function(doc) {
-            if (doc.exists) {
-                var data = doc.data();
-                var viewCount = data.viewCount || 0; // Default to 0 if the field doesn't exist
-                document.getElementById("viewCount").textContent = viewCount;
-            } else {
-                console.log("No such document!");
-            }
+function count_view(viewers_ip){
+    var views;
+    var ip_to_string=viewers_ip.tostring();
+
+    for(var i,i=0;i < ip_to_string.length;i++){
+        ip_to_string=ip_to_string.replace('.','-')
+    }
+    firebase.database().ref().child("page_views/" + ip_to_string).set({
+        viewers_ip:viewers_ip
+    })
+
+
+    firebase.database().ref().child("page_views").on("value",function(snapshot){
+        views=snapshot.newChildren()
+        document.getElementById("view_count_post").innerHTML=views
+    })
+
+}
+</script>
+<script type="application/javascript" scr="https://api64.ipify.org/?format=jsonp&callback=get_viewers_ip">
+
+</script>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-Time Visitors</title>
+</head>
+<body>
+    <h1>Total Real-Time Visitors</h1>
+    <p id="visitorCount">Loading...</p>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Load the Google API client library.
+            gapi.load('client', function() {
+                gapi.client.init({
+                    apiKey: 'YOUR_API_KEY',
+                    clientId: 'YOUR_CLIENT_ID',
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/analyticsreporting/v4/rest'],
+                    scope: 'https://www.googleapis.com/auth/analytics.readonly'
+                }).then(function() {
+                    // Make an API request to get real-time data.
+                    gapi.client.analyticsreporting.data.realtime.get({
+                        "viewId": "ga:YOUR_VIEW_ID",
+                        "metrics": "rt:activeUsers"
+                    }).then(function(response) {
+                        var activeUsers = response.result.rows[0][0];
+                        document.getElementById('visitorCount').textContent = activeUsers;
+                    });
+                });
+            });
         });
-
-        // Function to increment the view count (e.g., called when a user views the content)
-        function incrementViewCount() {
-            viewCountRef.set({
-                viewCount: firebase.firestore.FieldValue.increment(1)
-            }, { merge: true });
-        }
-
-        // Call this function whenever you want to increment the view count
-        // For example, call it when the page is loaded
-        incrementViewCount();
     </script>
 </body>
 </html>
