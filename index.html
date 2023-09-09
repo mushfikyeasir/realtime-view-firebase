@@ -88,6 +88,7 @@ function count_view(viewers_ip){
                     }).then(function(response) {
                         var activeUsers = response.result.rows[0][0];
                         document.getElementById('visitorCount').textContent = activeUsers;
+
                         
                     });
                 });
